@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import cors from "cors";
 import express from "express";
 import morgan from "morgan";
@@ -8,8 +9,8 @@ import routes from "./routes";
 const app = express();
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
-server.listen(3000, () =>
-  console.log("Server running on http://localhost:3000")
+server.listen(3333, () =>
+  console.log("Server running on http://localhost:3333")
 );
 
 app.use(morgan("dev"));
