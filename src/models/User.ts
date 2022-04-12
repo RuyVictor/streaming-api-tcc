@@ -10,20 +10,20 @@ import { Stream } from "./Stream";
 
 @Entity("users")
 export class User {
-  @PrimaryGeneratedColumn()
-  id!: string;
+  @PrimaryGeneratedColumn("uuid")
+  id: string;
 
-  @Column({ nullable: false })
-  name!: string;
+  @Column({ unique: true })
+  name: string;
 
-  @Column({ nullable: false })
-  email!: string;
+  @Column({ unique: true })
+  email: string;
 
-  @Column({ nullable: false, select: false })
-  password!: string;
+  @Column({ select: false })
+  password: string;
 
-  @Column()
-  profile_image!: string;
+  @Column({ nullable: true })
+  profile_image: string;
 
   @CreateDateColumn()
   created_at: Date;
