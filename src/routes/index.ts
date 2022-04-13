@@ -2,10 +2,12 @@ import { Router } from 'express';
 
 import StreamRoutes from './stream.routes';
 import AuthRoutes from './auth.routes';
+import CategoryRoutes from './category.routes';
 
 const routes = Router();
 
 routes.use('/stream', StreamRoutes);
+routes.use('/category', CategoryRoutes);
 routes.use('/auth', AuthRoutes);
 
 routes.get('/', (request, response) =>

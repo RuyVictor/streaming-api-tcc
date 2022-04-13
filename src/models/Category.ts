@@ -2,13 +2,15 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  ManyToOne,
-  OneToMany,
   OneToOne,
+  Tree,
+  TreeParent,
+  TreeChildren
 } from "typeorm";
 import { Stream } from "./Stream";
 
 @Entity()
+@Tree("nested-set")
 export class Category {
   @PrimaryGeneratedColumn("uuid")
   id: number;
@@ -16,12 +18,15 @@ export class Category {
   @Column()
   name: string;
 
-  @ManyToOne((type) => Category, (category) => category.children)
+  @Column({ nullable: true })
+  image: string;
+
+  @TreeParent()
   parent: Category;
 
-  @OneToMany((type) => Category, (category) => category.parent)
+  @TreeChildren()
   children: Category[];
 
-  @OneToOne(() => Stream, (Stream) => Stream.category, { eager: true })
+  @OneToOne(() => Stream, (Stream) => Stream.category)
   stream: Stream;
 }
