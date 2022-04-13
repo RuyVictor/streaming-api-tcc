@@ -1,5 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import { ISignInDTO, ISignUpDTO } from "../models/dto/auth.dto";
+import {
+  IRefreshTokenDTO,
+  ISignInDTO,
+  ISignUpDTO,
+} from "../models/dto/auth.dto";
 import { AuthService } from "../services/auth.service";
 
 export class AuthController {
@@ -7,20 +11,37 @@ export class AuthController {
     const { email, password } = req.body as ISignInDTO;
 
     try {
-      const { user, token } = await AuthService.signIn({email, password});
+      const { user, token } = await AuthService.signIn({ email, password });
       return res.status(200).json({ user, token });
     } catch (err) {
-      next(err)
+      next(err);
     }
   }
 
   static async signUp(req: Request, res: Response, next: NextFunction) {
     const { name, email, password } = req.body as ISignUpDTO;
     try {
-      const { user, token } = await AuthService.signUp({name, email, password});
+      const { user, token } = await AuthService.signUp({
+        name,
+        email,
+        password,
+      });
       return res.status(200).json({ user, token });
     } catch (err) {
-      next(err)
+      next(err);
+    }
+  }
+
+  static async refreshToken(req: Request, res: Response, next: NextFunction) {
+    const { user_id, token } = req as unknown as IRefreshTokenDTO;
+    try {
+      const { accessToken, refreshToken } = await AuthService.refreshToken({
+        user_id,
+        token
+      });
+      return res.status(200).json({ accessToken, refreshToken });
+    } catch (err) {
+      next(err);
     }
   }
 }

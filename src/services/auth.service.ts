@@ -2,8 +2,12 @@ import { AppDataSource } from "../database";
 import { User } from "../models/User";
 
 import { compare, hash } from "bcryptjs";
-import { sign } from "jsonwebtoken";
-import { ISignInDTO, ISignUpDTO } from "../models/dto/auth.dto";
+import { sign, decode } from "jsonwebtoken";
+import {
+  IRefreshTokenDTO,
+  ISignInDTO,
+  ISignUpDTO,
+} from "../models/dto/auth.dto";
 import { AppError } from "../errors/AppError";
 
 import { StreamService } from "../services/stream.service";
@@ -30,7 +34,7 @@ export class AuthService {
 
     const token = sign({}, process.env.JWT_SECRET, {
       subject: user.id,
-      expiresIn: "7d",
+      expiresIn: process.env.JWT_EXPIRATION_TIME,
     });
 
     return {
@@ -62,14 +66,51 @@ export class AuthService {
 
     const token = sign({}, process.env.JWT_SECRET, {
       subject: user.id,
-      expiresIn: "7d",
+      expiresIn: process.env.JWT_EXPIRATION_TIME,
     });
 
-	await StreamService.createStream(savedUser);
+    await StreamService.createStream(savedUser);
 
     return {
       user,
       token,
     };
   }
+
+  static async refreshToken({ user_id, token }: IRefreshTokenDTO) {
+    const [, formattedToken] = token.split(" ");
+    const decodedToken = decode(formattedToken);
+
+    if (!decodedToken) {
+      throw new AppError("Invalid token.", 401);
+    }
+
+    const userRepository = AppDataSource.getRepository(User);
+
+    const userExists = await userRepository.findOneBy({
+      id: user_id,
+    });
+
+    if (!userExists) {
+      throw new AppError("Invalid token.", 401);
+    }
+
+    const tokenRepository = AppDataSource.getRepository(Token);
+
+    await tokenRepository.save({ hash: formattedToken }); //revoke old token
+
+    const accessToken = sign({}, process.env.JWT_SECRET, {
+      subject: userExists.id,
+      expiresIn: 120,
+    });
+
+    const refreshToken = sign({}, process.env.JWT_SECRET, {
+      subject: userExists.id,
+      expiresIn: "6h",
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  static async revokeToken() {}
 }
