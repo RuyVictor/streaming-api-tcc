@@ -33,7 +33,7 @@ export class AuthController {
   }
 
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
-    const { user_id, token } = req as unknown as IRefreshTokenDTO;
+    const { user_id, token } = req.body as IRefreshTokenDTO;
     try {
       const { accessToken, refreshToken } = await AuthService.refreshToken({
         user_id,

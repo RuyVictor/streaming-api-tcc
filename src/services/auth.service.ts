@@ -11,6 +11,7 @@ import {
 import { AppError } from "../errors/AppError";
 
 import { StreamService } from "../services/stream.service";
+import { Token } from "../models/Token";
 
 export class AuthService {
   static async signIn({ email, password }: ISignInDTO) {
@@ -78,13 +79,6 @@ export class AuthService {
   }
 
   static async refreshToken({ user_id, token }: IRefreshTokenDTO) {
-    const [, formattedToken] = token.split(" ");
-    const decodedToken = decode(formattedToken);
-
-    if (!decodedToken) {
-      throw new AppError("Invalid token.", 401);
-    }
-
     const userRepository = AppDataSource.getRepository(User);
 
     const userExists = await userRepository.findOneBy({
@@ -96,12 +90,11 @@ export class AuthService {
     }
 
     const tokenRepository = AppDataSource.getRepository(Token);
-
-    await tokenRepository.save({ hash: formattedToken }); //revoke old token
+    await tokenRepository.save({ hash: token }); //revoke old token
 
     const accessToken = sign({}, process.env.JWT_SECRET, {
       subject: userExists.id,
-      expiresIn: 120,
+      expiresIn: 120, // 2 minutes
     });
 
     const refreshToken = sign({}, process.env.JWT_SECRET, {
