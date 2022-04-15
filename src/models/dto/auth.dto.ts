@@ -10,6 +10,7 @@ export interface ISignUpDTO {
 }
 
 export interface IRefreshTokenDTO {
-    user_id: string;
-    token: string;
+    userId?: string;
+    accessToken: string
+    refreshToken: string;
 }

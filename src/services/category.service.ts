@@ -14,13 +14,23 @@ export class CategoryService {
         throw new AppError("Category not found.", 404);
       }
 
+      // Show categories with total of spectators
       return await categoryRepository
-      .createDescendantsQueryBuilder("category", "categoryClosure", new Category)
-      .andWhere('category.parentId = :id', { id: category.id })
-      .skip((page - 1)  * take)
-      .take(take)
-      .getManyAndCount();
-
+        .createDescendantsQueryBuilder(
+          "category",
+          "categoryClosure",
+          new Category()
+        )
+        .loadRelationCountAndMap(
+          "category.spectators",
+          "category.streams",
+          "stream",
+          (qb) => qb.where("stream.status = :status", { status: "active" })
+        )
+        .andWhere("category.parentId = :id", { id: category.id })
+        .skip((page - 1) * take)
+        .take(take)
+        .getManyAndCount();
     }
 
     const primaryCategories = await categoryRepository.findRoots();

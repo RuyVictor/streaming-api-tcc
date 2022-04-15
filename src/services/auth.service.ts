@@ -2,7 +2,7 @@ import { AppDataSource } from "../database";
 import { User } from "../models/User";
 
 import { compare, hash } from "bcryptjs";
-import { sign, decode } from "jsonwebtoken";
+import { sign, decode, verify } from "jsonwebtoken";
 import {
   IRefreshTokenDTO,
   ISignInDTO,
@@ -12,6 +12,20 @@ import { AppError } from "../errors/AppError";
 
 import { StreamService } from "../services/stream.service";
 import { Token } from "../models/Token";
+
+function generateTokens(user_id: string) {
+  const accessToken = sign({}, process.env.JWT_SECRET, {
+    subject: user_id,
+    expiresIn: parseInt(process.env.JWT_ACCESS_TOKEN_EXPIRATION_TIME),
+  });
+
+  const refreshToken = sign({}, process.env.JWT_SECRET, {
+    subject: user_id,
+    expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRATION_TIME,
+  });
+
+  return { accessToken, refreshToken };
+}
 
 export class AuthService {
   static async signIn({ email, password }: ISignInDTO) {
@@ -33,14 +47,14 @@ export class AuthService {
       throw new AppError("Incorrect email/password combination.", 403);
     }
 
-    const token = sign({}, process.env.JWT_SECRET, {
-      subject: user.id,
-      expiresIn: process.env.JWT_EXPIRATION_TIME,
-    });
+    const { accessToken, refreshToken } = generateTokens(user.id);
+
+    delete user.password;
 
     return {
       user,
-      token,
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -65,24 +79,28 @@ export class AuthService {
 
     const savedUser = await userRepository.save(user);
 
-    const token = sign({}, process.env.JWT_SECRET, {
-      subject: user.id,
-      expiresIn: process.env.JWT_EXPIRATION_TIME,
-    });
+    const { accessToken, refreshToken } = generateTokens(user.id);
 
     await StreamService.createStream(savedUser);
 
+    delete user.password;
+
     return {
       user,
-      token,
+      accessToken,
+      refreshToken,
     };
   }
 
-  static async refreshToken({ user_id, token }: IRefreshTokenDTO) {
+  static async refreshToken({
+    userId,
+    accessToken,
+    refreshToken,
+  }: IRefreshTokenDTO) {
     const userRepository = AppDataSource.getRepository(User);
 
     const userExists = await userRepository.findOneBy({
-      id: user_id,
+      id: userId,
     });
 
     if (!userExists) {
@@ -90,20 +108,27 @@ export class AuthService {
     }
 
     const tokenRepository = AppDataSource.getRepository(Token);
-    await tokenRepository.save({ hash: token }); //revoke old token
+    const refreshTokenIsBlackListed = await tokenRepository.findOneBy({ hash: refreshToken });
+    if (refreshTokenIsBlackListed) {
+      throw new AppError("Invalid refresh token", 401);
+    }
 
-    const accessToken = sign({}, process.env.JWT_SECRET, {
-      subject: userExists.id,
-      expiresIn: 120, // 2 minutes
-    });
+    try {
+      verify(refreshToken, process.env.JWT_SECRET);
+    } catch (error) {
+      throw new AppError("Invalid refresh token.", 401);
+    }
 
-    const refreshToken = sign({}, process.env.JWT_SECRET, {
-      subject: userExists.id,
-      expiresIn: "6h",
-    });
+    await tokenRepository.save({ hash: accessToken }); //revoke old access token
 
-    return { accessToken, refreshToken };
+    const { accessToken: newAccessToken } = generateTokens(userExists.id);
+
+    return newAccessToken;
   }
 
-  static async revokeToken() {}
+  static async revokeTokens({ accessToken, refreshToken }: IRefreshTokenDTO) {
+    const tokenRepository = AppDataSource.getRepository(Token);
+    await tokenRepository.save({ hash: accessToken });
+    await tokenRepository.save({ hash: refreshToken });
+  }
 }

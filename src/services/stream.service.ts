@@ -16,6 +16,6 @@ export class StreamService {
 
     static async getStreams(pagination?: IPagination): Promise<Stream[]> {
         const streamRepository = AppDataSource.getRepository(Stream)
-        return await streamRepository.find(pagination)
+        return await streamRepository.find()
     }
 }

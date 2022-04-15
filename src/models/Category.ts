@@ -2,10 +2,10 @@ import {
   Entity,
   Column,
   PrimaryGeneratedColumn,
-  OneToOne,
   Tree,
   TreeParent,
-  TreeChildren
+  TreeChildren,
+  OneToMany
 } from "typeorm";
 import { Stream } from "./Stream";
 
@@ -27,6 +27,6 @@ export class Category {
   @TreeChildren()
   children: Category[];
 
-  @OneToOne(() => Stream, (Stream) => Stream.category)
-  stream: Stream;
+  @OneToMany(() => Stream, (Stream) => Stream.category)
+  streams: Stream[];
 }

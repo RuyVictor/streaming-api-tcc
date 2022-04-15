@@ -22,18 +22,18 @@ export default async function ensureAuthenticated(
       throw new AppError("JWT token is missing", 401);
     }
 
-    const [, token] = authHeader.split(" ");
+    const [, accessToken] = authHeader.split(" ");
 
     const tokenRepository = AppDataSource.getRepository(Token);
-    const isBlackListed = await tokenRepository.findOneBy({ hash: token });
-    if (isBlackListed) {
+    const accessTokenIsBlackListed = await tokenRepository.findOneBy({ hash: accessToken });
+    if (accessTokenIsBlackListed) {
       throw new AppError("Invalid JWT token", 401);
     }
 
-    const decoded = verify(token, process.env.JWT_SECRET);
+    const decoded = verify(accessToken, process.env.JWT_SECRET);
     const { sub } = decoded as ITokenPayload;
     
-    req.body = { user_id: sub, token: token };
+    req.body = { userId: sub, accessToken };
 
     return next();
   } catch (e) {

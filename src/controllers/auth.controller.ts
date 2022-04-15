@@ -11,8 +11,11 @@ export class AuthController {
     const { email, password } = req.body as ISignInDTO;
 
     try {
-      const { user, token } = await AuthService.signIn({ email, password });
-      return res.status(200).json({ user, token });
+      const { user, accessToken, refreshToken } = await AuthService.signIn({
+        email,
+        password,
+      });
+      return res.status(200).json({ user, accessToken, refreshToken });
     } catch (err) {
       next(err);
     }
@@ -21,25 +24,41 @@ export class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
     const { name, email, password } = req.body as ISignUpDTO;
     try {
-      const { user, token } = await AuthService.signUp({
+      const { user, accessToken, refreshToken } = await AuthService.signUp({
         name,
         email,
         password,
       });
-      return res.status(200).json({ user, token });
+      return res.status(200).json({ user, accessToken, refreshToken });
     } catch (err) {
       next(err);
     }
   }
 
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
-    const { user_id, token } = req.body as IRefreshTokenDTO;
+    // userId & accessToken from middleware
+    const { userId, accessToken, refreshToken } = req.body as IRefreshTokenDTO;
     try {
-      const { accessToken, refreshToken } = await AuthService.refreshToken({
-        user_id,
-        token
+      const newAccessToken = await AuthService.refreshToken({
+        userId,
+        accessToken,
+        refreshToken,
       });
-      return res.status(200).json({ accessToken, refreshToken });
+      return res.status(200).json({ newAccessToken });
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  static async revokeTokens(req: Request, res: Response, next: NextFunction) {
+    // accessToken from middleware, refreshToken sent by user from body
+    const { accessToken, refreshToken } = req.body as IRefreshTokenDTO;
+    try {
+      await AuthService.revokeTokens({
+        accessToken,
+        refreshToken,
+      });
+      return res.status(200).json({ message: "Tokens revoked!" });
     } catch (err) {
       next(err);
     }

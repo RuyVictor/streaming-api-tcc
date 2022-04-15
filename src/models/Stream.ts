@@ -6,6 +6,7 @@ import {
   UpdateDateColumn,
   OneToOne,
   JoinColumn,
+  ManyToOne,
 } from "typeorm";
 import { Category } from "./Category";
 import { User } from "./User";
@@ -39,7 +40,6 @@ export class Stream {
   @JoinColumn()
   user: User;
 
-  @OneToOne(() => Category, (Category) => Category.stream)
-  @JoinColumn()
+  @ManyToOne(() => Category, (Category) => Category.streams)
   category: Category;
 }
