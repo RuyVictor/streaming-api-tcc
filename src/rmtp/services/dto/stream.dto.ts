@@ -1,0 +1,3 @@
+interface iPrePublishAuthDTO {
+    secret: string;
+}

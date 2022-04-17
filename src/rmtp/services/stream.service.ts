@@ -10,31 +10,41 @@ export class StreamService {
   }
 
   run() {
-    this.nodeMediaServer.on("prePublish", async (id, StreamPath, args) => {
-      const streamRepository = AppDataSource.getRepository(Stream);
+    this.nodeMediaServer.on(
+      "prePublish",
+      async (id, StreamPath, { secret }: iPrePublishAuthDTO) => {
+        const streamRepository = AppDataSource.getRepository(Stream);
 
-      const transmissionKeyFromClient = StreamPath.split("/").pop();
+        const streamId = StreamPath.split("/").pop();
 
-      const foundStream = await streamRepository.findOneBy({
-        transmission_key: transmissionKeyFromClient,
-      });
+        const foundStream = await streamRepository.findOne({
+          where: {id: streamId},
+          select: ["transmission_key"]
+        });
 
-      if (!foundStream) {
-        return this.nodeMediaServer.getSession(id).reject();
+        if (!foundStream) {
+          return this.nodeMediaServer.getSession(id).reject();
+        }
+
+        if (foundStream.transmission_key !== secret) {
+          return this.nodeMediaServer.getSession(id).reject();
+        }
+
+        await streamRepository.update(streamId, {
+          status: StreamStatus.ACTIVE,
+          spectators: 0,
+          url: `http://localhost:8000/live/${streamId}.flv`,
+        });
       }
-
-      await streamRepository.update(foundStream.id, {
-        status: StreamStatus.ACTIVE,
-      });
-    });
+    );
 
     this.nodeMediaServer.on("donePublish", async (id, StreamPath, args) => {
       const streamRepository = AppDataSource.getRepository(Stream);
 
-      const transmissionKeyFromClient = StreamPath.split("/").pop();
+      const streamId = StreamPath.split("/").pop();
 
       const foundStream = await streamRepository.findOneBy({
-        transmission_key: transmissionKeyFromClient,
+        id: streamId,
       });
 
       await streamRepository.update(foundStream.id, {
@@ -46,10 +56,10 @@ export class StreamService {
     this.nodeMediaServer.on("prePlay", async (id, StreamPath, args) => {
       const streamRepository = AppDataSource.getRepository(Stream);
 
-      const transmissionKeyFromClient = StreamPath.split("/").pop();
+      const streamId = StreamPath.split("/").pop();
 
       const foundStream = await streamRepository.findOneBy({
-        transmission_key: transmissionKeyFromClient,
+        id: streamId,
       });
 
       await streamRepository.update(foundStream.id, {
@@ -60,10 +70,10 @@ export class StreamService {
     this.nodeMediaServer.on("donePlay", async (id, StreamPath, args) => {
       const streamRepository = AppDataSource.getRepository(Stream);
 
-      const transmissionKeyFromClient = StreamPath.split("/").pop();
+      const streamId = StreamPath.split("/").pop();
 
       const foundStream = await streamRepository.findOneBy({
-        transmission_key: transmissionKeyFromClient,
+        id: streamId,
       });
 
       await streamRepository.update(foundStream.id, {
