@@ -1,13 +1,26 @@
 import { NextFunction, Request, Response } from "express";
+import { IStreamSearchDTO } from "../models/dto/stream.dto";
 import { StreamService } from "../services/stream.service";
 
 export class StreamController {
   static async getStreams(req: Request, res: Response, next: NextFunction) {
+    const { title, status, category, page, take } = req.query as unknown as IStreamSearchDTO;
+
     try {
-      const streams = await StreamService.getStreams();
-      return res.status(200).send(streams);
+      const [ result, total ] = await StreamService.getStreams({title, status, category, page, take});
+      return res.status(200).json({data: result, total: total});
     } catch (err) {
       next(err)
+    }
+  }
+
+  static async getOneStream(req: Request, res: Response, next: NextFunction) {
+    const { stream_host } = req.query;
+    try {
+      const stream = await StreamService.getOneStream(stream_host as string);
+      return res.status(200).send(stream);
+    } catch (err) {
+      next(err);
     }
   }
 }

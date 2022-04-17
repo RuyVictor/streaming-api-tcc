@@ -2,7 +2,7 @@ import { AppDataSource } from "../database";
 import { User } from "../models/User";
 
 import { compare, hash } from "bcryptjs";
-import { sign, decode, verify } from "jsonwebtoken";
+import { sign, verify } from "jsonwebtoken";
 import {
   IRefreshTokenDTO,
   ISignInDTO,
@@ -81,7 +81,7 @@ export class AuthService {
 
     const { accessToken, refreshToken } = generateTokens(user.id);
 
-    await StreamService.createStream(savedUser);
+    await StreamService.createRelationWithUser(savedUser);
 
     delete user.password;
 

@@ -22,13 +22,22 @@ export class Stream {
   id: string;
 
   @Column({ nullable: true })
-  name: string;
+  url: string;
+
+  @Column({ nullable: true })
+  title: string;
 
   @Column({ nullable: true })
   description: string;
 
   @Column({ type: "enum", enum: StreamStatus, default: StreamStatus.INACTIVE })
   status: StreamStatus;
+
+  @Column({ default: 0 })
+  spectators: number;
+
+  @Column({ select: false })
+  transmission_key: string;
 
   @CreateDateColumn()
   created_at: Date;

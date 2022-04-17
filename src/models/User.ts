@@ -31,6 +31,6 @@ export class User {
   @UpdateDateColumn()
   updated_at: Date;
 
-  @OneToOne(() => Stream, (Stream) => Stream.user, { eager: true })
+  @OneToOne(() => Stream, (Stream) => Stream.user)
   stream: Stream;
 }

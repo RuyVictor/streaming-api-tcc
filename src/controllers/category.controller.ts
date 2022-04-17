@@ -11,4 +11,15 @@ export class CategoryController {
       next(err);
     }
   }
+
+  static async getOneCategory(req: Request, res: Response, next: NextFunction) {
+    const { name } = req.query;
+
+    try {
+      const result = await CategoryService.getOneCategory(name as string);
+      return res.status(200).send(result);
+    } catch (err) {
+      next(err);
+    }
+  }
 }
