@@ -7,6 +7,6 @@ const router = Router();
 router.post('/signin', AuthController.signIn)
 router.post('/signup', AuthController.signUp)
 router.post('/refresh-token', ensureAuthenticated, AuthController.refreshToken)
-router.post('/revoke-tokens', ensureAuthenticated, AuthController.revokeTokens)
+router.post('/revoke-tokens', AuthController.revokeTokens)
 
 export default router;

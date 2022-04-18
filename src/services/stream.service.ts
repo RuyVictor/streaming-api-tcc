@@ -56,15 +56,18 @@ export class StreamService {
   static async getOneStream(stream_host: string): Promise<Stream> {
     const streamRepository = AppDataSource.getRepository(Stream);
 
-    const foundStream = await streamRepository.findOne({
-      where: {user: {name: stream_host}},
-      relations: ['category', 'user']
-    });
-
-    if (!foundStream) {
+    if (stream_host) {
+      const foundStream = await streamRepository.findOne({
+        where: {user: {name: stream_host}},
+        relations: ['category', 'user']
+      });
+  
+      if (!foundStream) {
+        throw new AppError("Stream host not found.", 404);
+      }
+      return foundStream;
+    } else {
       throw new AppError("Stream host not found.", 404);
     }
-
-    return foundStream;
   }
 }
