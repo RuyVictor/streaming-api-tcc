@@ -4,13 +4,20 @@ import { StreamService } from "../services/stream.service";
 
 export class StreamController {
   static async getStreams(req: Request, res: Response, next: NextFunction) {
-    const { title, status, category, page, take } = req.query as unknown as IStreamSearchDTO;
+    const { query, status, category, page, take } =
+      req.query as unknown as IStreamSearchDTO;
 
     try {
-      const [ result, total ] = await StreamService.getStreams({title, status, category, page, take});
-      return res.status(200).json({data: result, total: total});
+      const [result, total] = await StreamService.getStreams({
+        query,
+        status,
+        category,
+        page,
+        take,
+      });
+      return res.status(200).json({ data: result, total: total });
     } catch (err) {
-      next(err)
+      next(err);
     }
   }
 

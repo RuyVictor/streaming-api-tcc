@@ -80,7 +80,7 @@ export class CategoryService {
     return await categoryRepository
       .createQueryBuilder("category")
       .loadRelationCountAndMap(
-        "category.spectators",
+        "category.number_of_streams",
         "category.streams",
         "stream",
         (qb) => qb.where("stream.status = :status", { status: "active" })

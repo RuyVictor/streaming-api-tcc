@@ -19,7 +19,7 @@ export class StreamService {
   }
 
   static async getStreams({
-    title,
+    query,
     status = "active",
     category,
     page = 1,
@@ -34,8 +34,10 @@ export class StreamService {
       .where("streams.status = :status", { status })
       .andWhere(
         new Brackets((qb) => {
-          title &&
-            qb.where("streams.title LIKE :title", { title: `%${title}%` });
+          query &&
+            qb.where("streams.title LIKE :query", { query: `%${query}%` });
+          query &&
+            qb.orWhere("user.name LIKE :query", { query: `%${query}%` });
           category && qb.andWhere("category.name = :name", { name: category });
         })
       )
