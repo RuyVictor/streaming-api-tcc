@@ -30,6 +30,10 @@ export class StreamService {
           return this.nodeMediaServer.getSession(id).reject();
         }
 
+        if (!foundStream.category) {
+          return this.nodeMediaServer.getSession(id).reject();
+        }
+
         await streamRepository.update(streamId, {
           status: StreamStatus.ACTIVE,
           spectators: 0,

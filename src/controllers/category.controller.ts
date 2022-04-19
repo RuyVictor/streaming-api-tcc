@@ -22,4 +22,13 @@ export class CategoryController {
       next(err);
     }
   }
+
+  static async getSelectableCategories(req: Request, res: Response, next: NextFunction) {
+    try {
+      const [ result, total ] = await CategoryService.getSelectableCategories();
+      return res.status(200).json({data: result, total: total});
+    } catch (err) {
+      next(err);
+    }
+  }
 }

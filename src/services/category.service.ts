@@ -2,9 +2,14 @@ import { AppDataSource } from "../database";
 import { AppError } from "../errors/AppError";
 import { Category } from "../models/Category";
 import { ICategorySearchDTO } from "../models/dto/category.dto";
+import { Not } from "typeorm";
 
 export class CategoryService {
-  static async getCategories({ name, page = 1, take = 20 }: ICategorySearchDTO) {
+  static async getCategories({
+    name,
+    page = 1,
+    take = 20,
+  }: ICategorySearchDTO) {
     const categoryRepository = AppDataSource.getTreeRepository(Category);
 
     if (name) {
@@ -64,8 +69,23 @@ export class CategoryService {
       return [result, count];
     }
 
-    const primaryCategories = await categoryRepository.findRoots();
-    return [primaryCategories, primaryCategories.length];
+    // Obtendo as categorias mães, caso uma categoria contenha sub categorias é marcada como "have_subcategories"
+    const primaryCategories = await categoryRepository
+      .createQueryBuilder(
+        "category",
+      )
+      .leftJoinAndSelect("category.children", "children")
+      .select([
+        "DISTINCT (category.id) AS id",
+        "category.name AS name",
+        "category.image AS image",
+      ])
+      .addSelect("IF(COUNT(children.id) > 0, 'true', 'false')", "have_subcategories")
+      .andWhere("category.parentId IS NULL")
+      .groupBy("category.id")
+      .getRawMany()
+      
+    return [primaryCategories, null];
   }
 
   static async getOneCategory(name: string) {
@@ -87,5 +107,12 @@ export class CategoryService {
       )
       .andWhere("category.name = :name", { name: category.name })
       .getOne();
+  }
+
+  static async getSelectableCategories() {
+    const categoryRepository = AppDataSource.getRepository(Category);
+    return await categoryRepository.findAndCount({
+      where: { name: Not("Jogos") },
+    });
   }
 }

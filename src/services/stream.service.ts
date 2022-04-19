@@ -1,7 +1,8 @@
-import { Brackets, ILike } from "typeorm";
+import { Brackets, UpdateResult } from "typeorm";
 import { AppDataSource } from "../database";
 import { AppError } from "../errors/AppError";
-import { IStreamSearchDTO } from "../models/dto/stream.dto";
+import { Category } from "../models/Category";
+import { IEditStreamDTO, IStreamSearchDTO } from "../models/dto/stream.dto";
 import { Stream } from "../models/Stream";
 import { User } from "../models/User";
 import { generateTransmissionKey } from "../utils/generateTransmissionKey";
@@ -36,8 +37,7 @@ export class StreamService {
         new Brackets((qb) => {
           query &&
             qb.where("streams.title LIKE :query", { query: `%${query}%` });
-          query &&
-            qb.orWhere("user.name LIKE :query", { query: `%${query}%` });
+          query && qb.orWhere("user.name LIKE :query", { query: `%${query}%` });
           category && qb.andWhere("category.name = :name", { name: category });
         })
       )
@@ -56,18 +56,52 @@ export class StreamService {
   static async getOneStream(stream_host: string): Promise<Stream> {
     const streamRepository = AppDataSource.getRepository(Stream);
 
-    if (stream_host) {
-      const foundStream = await streamRepository.findOne({
-        where: {user: {name: stream_host}},
-        relations: ['category', 'user']
-      });
-  
-      if (!foundStream) {
-        throw new AppError("Stream host not found.", 404);
-      }
-      return foundStream;
-    } else {
+    if (!stream_host) {
       throw new AppError("Stream host not found.", 404);
     }
+
+    const foundStream = await streamRepository.findOne({
+      where: { user: { name: stream_host } },
+      relations: ["category", "user"],
+    });
+
+    if (!foundStream) {
+      throw new AppError("Stream host not found.", 404);
+    }
+    return foundStream;
+  }
+
+  static async editStream({
+    title,
+    description,
+    category,
+    userId,
+  }: IEditStreamDTO): Promise<UpdateResult> {
+    const streamRepository = AppDataSource.getRepository(Stream);
+    const categoryRepository = AppDataSource.getRepository(Category);
+
+    const foundStream = await streamRepository.findOneBy({
+      user: { id: userId },
+    });
+
+    if (!foundStream) {
+      throw new AppError("Stream not found.", 404);
+    }
+
+    const foundCategory = await categoryRepository.findOneBy({
+      id: category
+    });
+
+    if (!foundCategory) {
+      throw new AppError("Category not found.", 404);
+    }
+
+    const updatedStream = await streamRepository.update(foundStream.id, {
+      title,
+      description,
+      category: foundCategory,
+    });
+
+    return updatedStream;
   }
 }

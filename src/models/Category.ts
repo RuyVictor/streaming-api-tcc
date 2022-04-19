@@ -13,7 +13,7 @@ import { Stream } from "./Stream";
 @Tree("nested-set")
 export class Category {
   @PrimaryGeneratedColumn("uuid")
-  id: number;
+  id: string;
 
   @Column()
   name: string;

@@ -5,3 +5,10 @@ export interface IStreamSearchDTO extends IPagination {
     status?: string;
     category?: string;
 }
+
+export interface IEditStreamDTO {
+    title?: string;
+    description?: string;
+    category?: string;
+    userId: string;
+}
