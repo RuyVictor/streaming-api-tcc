@@ -18,19 +18,16 @@ export class StreamService {
         const streamId = StreamPath.split("/").pop();
 
         const foundStream = await streamRepository.findOne({
-          where: {id: streamId},
-          select: ["transmission_key"]
+          where: { id: streamId },
+          relations: ["category"],
+          select: ["id", "transmission_key", "title"],
         });
 
-        if (!foundStream) {
-          return this.nodeMediaServer.getSession(id).reject();
-        }
-
-        if (foundStream.transmission_key !== secret) {
-          return this.nodeMediaServer.getSession(id).reject();
-        }
-
-        if (!foundStream.category) {
+        if (
+          !foundStream ||
+          !foundStream.category ||
+          foundStream.transmission_key !== secret
+        ) {
           return this.nodeMediaServer.getSession(id).reject();
         }
 

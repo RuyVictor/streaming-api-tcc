@@ -76,32 +76,53 @@ export class StreamService {
     description,
     category,
     userId,
-  }: IEditStreamDTO): Promise<UpdateResult> {
+  }: IEditStreamDTO): Promise<Stream> {
     const streamRepository = AppDataSource.getRepository(Stream);
     const categoryRepository = AppDataSource.getRepository(Category);
 
-    const foundStream = await streamRepository.findOneBy({
-      user: { id: userId },
+    const foundStream = await streamRepository.findOne({
+      where: { user: { id: userId } },
+      relations: ['category']
     });
 
     if (!foundStream) {
       throw new AppError("Stream not found.", 404);
     }
 
-    const foundCategory = await categoryRepository.findOneBy({
-      id: category
-    });
-
-    if (!foundCategory) {
-      throw new AppError("Category not found.", 404);
-    }
-
-    const updatedStream = await streamRepository.update(foundStream.id, {
+    await streamRepository.update(foundStream.id, {
       title,
       description,
-      category: foundCategory,
     });
 
-    return updatedStream;
+    if (category) {
+      const foundCategory = await categoryRepository.findOneBy({
+        id: category,
+      });
+
+      if (!foundCategory) {
+        throw new AppError("Category not found.", 404);
+      }
+
+      await streamRepository.update(foundStream.id, {
+        category: foundCategory
+      });
+    }
+
+    const stream = await streamRepository.findOne({where: { id: foundStream.id }, relations: ['category']});
+
+    return stream;
+  }
+
+  static async getTransmissionKey(userId: string): Promise<string> {
+    const streamRepository = AppDataSource.getRepository(Stream);
+
+    const foundStream = await streamRepository.findOne({
+      where: { user: { id: userId } },
+      select: ["id", "transmission_key"]
+    });
+
+    const formatedKey = foundStream.id + "?secret=" + foundStream.transmission_key;
+
+    return formatedKey;
   }
 }

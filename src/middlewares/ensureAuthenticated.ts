@@ -33,7 +33,8 @@ export default async function ensureAuthenticated(
     const decoded = verify(accessToken, process.env.JWT_SECRET);
     const { sub } = decoded as ITokenPayload;
     
-    req.body = { userId: sub, accessToken };
+    req.body.userId = sub;
+    req.body.accessToken = accessToken;
 
     return next();
   } catch (e) {

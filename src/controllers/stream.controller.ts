@@ -46,4 +46,15 @@ export class StreamController {
       next(err);
     }
   }
+
+  static async getTransmissionKey(req: Request, res: Response, next: NextFunction) {
+
+    const { userId } = req.body;
+    try {
+      const transmission_key = await StreamService.getTransmissionKey(userId as string);
+      return res.status(200).json({transmission_key});
+    } catch (err) {
+      next(err);
+    }
+  }
 }
