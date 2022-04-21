@@ -93,37 +93,35 @@ export class AuthService {
   }
 
   static async refreshToken({
-    userId,
     accessToken,
     refreshToken,
   }: IRefreshTokenDTO) {
     const userRepository = AppDataSource.getRepository(User);
 
-    const userExists = await userRepository.findOneBy({
-      id: userId,
-    });
-
-    if (!userExists) {
-      throw new AppError("Invalid token.", 401);
-    }
-
-    const tokenRepository = AppDataSource.getRepository(Token);
-    const refreshTokenIsBlackListed = await tokenRepository.findOneBy({ hash: refreshToken });
-    if (refreshTokenIsBlackListed) {
-      throw new AppError("Invalid refresh token", 401);
-    }
-
     try {
-      verify(refreshToken, process.env.JWT_SECRET);
+      const { sub } = verify(refreshToken, process.env.JWT_SECRET);
+      const userExists = await userRepository.findOneBy({
+        id: sub.toString(),
+      });
+  
+      if (!userExists) {
+        throw new AppError("Invalid refresh token.", 401);
+      }
+
+      const tokenRepository = AppDataSource.getRepository(Token);
+      const refreshTokenIsBlackListed = await tokenRepository.findOneBy({ hash: refreshToken });
+      if (refreshTokenIsBlackListed) {
+        throw new AppError("Invalid refresh token", 401);
+      }
+
+      await tokenRepository.save({ hash: accessToken }); //revoke old access token
+
+      const { accessToken: newAccessToken } = generateTokens(userExists.id);
+
+      return newAccessToken;
     } catch (error) {
       throw new AppError("Invalid refresh token.", 401);
     }
-
-    await tokenRepository.save({ hash: accessToken }); //revoke old access token
-
-    const { accessToken: newAccessToken } = generateTokens(userExists.id);
-
-    return newAccessToken;
   }
 
   static async revokeTokens({ accessToken, refreshToken }: IRefreshTokenDTO) {

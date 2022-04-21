@@ -37,10 +37,9 @@ export class AuthController {
 
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
     // userId & accessToken from middleware
-    const { userId, accessToken, refreshToken } = req.body as IRefreshTokenDTO;
+    const { accessToken, refreshToken } = req.body as IRefreshTokenDTO;
     try {
       const newAccessToken = await AuthService.refreshToken({
-        userId,
         accessToken,
         refreshToken,
       });
