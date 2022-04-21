@@ -75,12 +75,19 @@ export class CategoryService {
         "category",
       )
       .leftJoinAndSelect("category.children", "children")
+      .leftJoin("category.streams", "root_streams", "root_streams.status = :status", {
+        status: "active",
+      })
+      .leftJoin("children.streams", "subcategories_streams", "subcategories_streams.status = :status", {
+        status: "active",
+      })
       .select([
         "DISTINCT (category.id) AS id",
         "category.name AS name",
         "category.image AS image",
       ])
       .addSelect("IF(COUNT(children.id) > 0, 'true', 'false')", "have_subcategories")
+      .addSelect("COUNT(root_streams.id) + COUNT(subcategories_streams.id)", "number_of_streams")
       .andWhere("category.parentId IS NULL")
       .groupBy("category.id")
       .getRawMany()
