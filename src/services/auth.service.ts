@@ -2,7 +2,7 @@ import { AppDataSource } from "../database";
 import { User } from "../models/User";
 
 import { compare, hash } from "bcryptjs";
-import { sign, verify } from "jsonwebtoken";
+import { decode, JwtPayload, sign, verify } from "jsonwebtoken";
 import {
   IRefreshTokenDTO,
   ISignInDTO,
@@ -48,6 +48,7 @@ export class AuthService {
     }
 
     const { accessToken, refreshToken } = generateTokens(user.id);
+    const refreshTokenExp = decode(refreshToken) as JwtPayload;
 
     delete user.password;
 
@@ -55,6 +56,7 @@ export class AuthService {
       user,
       accessToken,
       refreshToken,
+      refreshTokenExp: refreshTokenExp.exp
     };
   }
 
@@ -80,6 +82,7 @@ export class AuthService {
     const savedUser = await userRepository.save(user);
 
     const { accessToken, refreshToken } = generateTokens(user.id);
+    const refreshTokenExp = decode(refreshToken) as JwtPayload;
 
     await StreamService.createRelationWithUser(savedUser);
 
@@ -89,6 +92,7 @@ export class AuthService {
       user,
       accessToken,
       refreshToken,
+      refreshTokenExp: refreshTokenExp.exp
     };
   }
 

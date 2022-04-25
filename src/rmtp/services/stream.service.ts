@@ -34,7 +34,7 @@ export class StreamService {
         await streamRepository.update(streamId, {
           status: StreamStatus.ACTIVE,
           spectators: 0,
-          url: `http://localhost:8000/live/${streamId}.flv`,
+          url: `http://localhost:8000/live/${streamId}/index.m3u8`,
         });
       }
     );

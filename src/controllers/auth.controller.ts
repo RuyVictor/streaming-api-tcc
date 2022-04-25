@@ -11,11 +11,14 @@ export class AuthController {
     const { email, password } = req.body as ISignInDTO;
 
     try {
-      const { user, accessToken, refreshToken } = await AuthService.signIn({
-        email,
-        password,
-      });
-      return res.status(200).json({ user, accessToken, refreshToken });
+      const { user, accessToken, refreshToken, refreshTokenExp } =
+        await AuthService.signIn({
+          email,
+          password,
+        });
+      return res
+        .status(200)
+        .json({ user, accessToken, refreshToken, refreshTokenExp });
     } catch (err) {
       next(err);
     }
@@ -24,12 +27,15 @@ export class AuthController {
   static async signUp(req: Request, res: Response, next: NextFunction) {
     const { name, email, password } = req.body as ISignUpDTO;
     try {
-      const { user, accessToken, refreshToken } = await AuthService.signUp({
-        name,
-        email,
-        password,
-      });
-      return res.status(200).json({ user, accessToken, refreshToken });
+      const { user, accessToken, refreshToken, refreshTokenExp } =
+        await AuthService.signUp({
+          name,
+          email,
+          password,
+        });
+      return res
+        .status(200)
+        .json({ user, accessToken, refreshToken, refreshTokenExp });
     } catch (err) {
       next(err);
     }

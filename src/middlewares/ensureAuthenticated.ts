@@ -1,14 +1,8 @@
 import { Request, Response, NextFunction } from "express";
-import { verify } from "jsonwebtoken";
+import { JwtPayload, verify } from "jsonwebtoken";
 import { AppDataSource } from "../database";
 import { AppError } from "../errors/AppError";
 import { Token } from "../models/Token";
-
-interface ITokenPayload {
-  iat: number;
-  exp: number;
-  sub: string;
-}
 
 export default async function ensureAuthenticated(
   req: Request,
@@ -25,14 +19,15 @@ export default async function ensureAuthenticated(
     const [, accessToken] = authHeader.split(" ");
 
     const tokenRepository = AppDataSource.getRepository(Token);
-    const accessTokenIsBlackListed = await tokenRepository.findOneBy({ hash: accessToken });
+    const accessTokenIsBlackListed = await tokenRepository.findOneBy({
+      hash: accessToken,
+    });
     if (accessTokenIsBlackListed) {
       throw new AppError("Invalid JWT token", 401);
     }
 
-    const decoded = verify(accessToken, process.env.JWT_SECRET);
-    const { sub } = decoded as ITokenPayload;
-    
+    const { sub } = verify(accessToken, process.env.JWT_SECRET) as JwtPayload;
+
     req.body.userId = sub;
     req.body.accessToken = accessToken;
 
