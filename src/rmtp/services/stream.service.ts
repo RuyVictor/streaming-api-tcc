@@ -28,7 +28,8 @@ export class StreamService {
           !foundStream.category ||
           foundStream.transmission_key !== secret
         ) {
-          return this.nodeMediaServer.getSession(id).reject();
+          const session = this.nodeMediaServer.getSession(id) as any;
+          return session.reject();
         }
 
         await streamRepository.update(streamId, {

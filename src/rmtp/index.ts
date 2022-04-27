@@ -29,7 +29,7 @@ const config = {
   }
 };
 
-export const nodeMediaServer = new NodeMediaServer(config);
+export const nodeMediaServer = new NodeMediaServer(config as any);
 
 const streamService = new StreamService(nodeMediaServer);
 streamService.run();
