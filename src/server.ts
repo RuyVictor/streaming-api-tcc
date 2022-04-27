@@ -9,6 +9,7 @@ import { AppDataSource } from "./database";
 import { nodeMediaServer } from "./rmtp";
 import { SocketInstance } from "./socket";
 
+const port = process.env.PORT || 3333;
 const app = express();
 app.use(morgan("dev"));
 app.use(express.json());
@@ -27,8 +28,8 @@ app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
 
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, { cors: { origin: "*" } });
-server.listen(3333, () =>
-  console.log("Server running on http://localhost:3333")
+server.listen(port, () =>
+  console.log("Server running on http://localhost:" + port.toString())
 );
 
 // Socket

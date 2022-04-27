@@ -4,6 +4,7 @@ export interface IChat {
     roomId?: string;
     userName?: string;
     message?: string;
+    isHost?: boolean;
 }
 
 let activeRooms: { [key: string]: IChat } = {};
