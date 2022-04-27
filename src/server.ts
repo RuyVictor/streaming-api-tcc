@@ -2,10 +2,12 @@ import "dotenv/config";
 import cors from "cors";
 import express, { NextFunction, Request, Response } from "express";
 import morgan from "morgan";
+import { AppError } from "./errors/AppError";
+import routes from "./routes";
+
 import { AppDataSource } from "./database";
 import { nodeMediaServer } from "./rmtp";
-import routes from "./routes";
-import { AppError } from "./errors/AppError";
+import { SocketInstance } from "./socket";
 
 const app = express();
 app.use(morgan("dev"));
@@ -23,9 +25,16 @@ app.use((err: Error, request: Request, response: Response, _: NextFunction) => {
   });
 });
 
-app.listen(3333, () =>
+const server = require("http").createServer(app);
+const io = require("socket.io")(server, { cors: { origin: "*" } });
+server.listen(3333, () =>
   console.log("Server running on http://localhost:3333")
 );
+
+// Socket
+const socketInstance = new SocketInstance(io);
+socketInstance.initialize();
+console.log(`Socket initialized!`);
 
 // Database
 AppDataSource.initialize()
@@ -36,4 +45,5 @@ console.log(`Database connected!`);
 console.log(err);
 });
 
+// RTMP
 nodeMediaServer.run()
