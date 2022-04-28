@@ -8,7 +8,7 @@ import {
   ISignInDTO,
   ISignUpDTO,
 } from "../models/dto/auth.dto";
-import { AppError } from "../errors/AppError";
+import AppError from "../errors/AppError";
 
 import { StreamService } from "../services/stream.service";
 import { Token } from "../models/Token";

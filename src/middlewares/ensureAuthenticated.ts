@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import { JwtPayload, verify } from "jsonwebtoken";
 import { AppDataSource } from "../database";
-import { AppError } from "../errors/AppError";
+import AppError from "../errors/AppError";
 import { Token } from "../models/Token";
 
 export default async function ensureAuthenticated(

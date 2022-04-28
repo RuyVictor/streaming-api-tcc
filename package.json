@@ -3,10 +3,11 @@
    "version": "1.0.0",
    "main": "server.js",
    "license": "MIT",
-   "module": "commonjs",
+   "type": "commonjs",
    "proxy": "http://localhost:3333",
    "scripts": {
-      "start": "tsnd --transpile-only --ignore-watch node_modules src/server.ts",
+      "start": "cross-env NODE_ENV=production node build/server.js",
+      "dev": "cross-env NODE_ENV=dev tsnd --transpile-only --ignore-watch node_modules src/server.ts",
       "build": "tsc --build",
       "typeorm": "typeorm-ts-node-commonjs",
       "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run -d ./src/database/index.ts"
@@ -14,6 +15,7 @@
    "dependencies": {
       "@ffmpeg-installer/ffmpeg": "^1.1.0",
       "bcryptjs": "^2.4.3",
+      "cross-env": "^7.0.3",
       "dotenv": "^16.0.0",
       "express": "^4.17.3",
       "jsonwebtoken": "^8.5.1",

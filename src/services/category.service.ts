@@ -1,5 +1,5 @@
 import { AppDataSource } from "../database";
-import { AppError } from "../errors/AppError";
+import AppError from "../errors/AppError";
 import { Category } from "../models/Category";
 import { ICategorySearchDTO } from "../models/dto/category.dto";
 import { Not } from "typeorm";
@@ -21,10 +21,8 @@ export class CategoryService {
 
       // Show categories with total of streams
       const result = await categoryRepository
-        .createDescendantsQueryBuilder(
+        .createQueryBuilder(
           "category",
-          "categoryClosure",
-          new Category()
         )
         .leftJoin("category.streams", "stream", "stream.status = :status", {
           status: "active",
@@ -52,10 +50,8 @@ export class CategoryService {
         .getRawMany();
 
       const count = await categoryRepository
-        .createDescendantsQueryBuilder(
+        .createQueryBuilder(
           "category",
-          "categoryClosure",
-          new Category()
         )
         .loadRelationCountAndMap(
           "category.number_of_streams",

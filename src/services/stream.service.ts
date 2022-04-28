@@ -1,6 +1,6 @@
 import { Brackets, UpdateResult } from "typeorm";
 import { AppDataSource } from "../database";
-import { AppError } from "../errors/AppError";
+import AppError from "../errors/AppError";
 import { Category } from "../models/Category";
 import { IEditStreamDTO, IStreamSearchDTO } from "../models/dto/stream.dto";
 import { Stream } from "../models/Stream";

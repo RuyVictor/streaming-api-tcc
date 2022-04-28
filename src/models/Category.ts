@@ -5,12 +5,13 @@ import {
   Tree,
   TreeParent,
   TreeChildren,
-  OneToMany
+  OneToMany,
+  ManyToOne
 } from "typeorm";
 import { Stream } from "./Stream";
 
 @Entity()
-@Tree("nested-set")
+@Tree("adjacency-list")
 export class Category {
   @PrimaryGeneratedColumn("uuid")
   id: string;
@@ -21,10 +22,10 @@ export class Category {
   @Column({ nullable: true })
   image: string;
 
-  @TreeParent()
+  @ManyToOne(type => Category, category => category.children)
   parent: Category;
 
-  @TreeChildren()
+  @OneToMany(type => Category, category => category.parent)
   children: Category[];
 
   @OneToMany(() => Stream, (Stream) => Stream.category)
