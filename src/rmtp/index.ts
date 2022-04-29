@@ -4,7 +4,7 @@ import ffmpeg from '@ffmpeg-installer/ffmpeg';
 
 const config = {
   rtmp: {
-    port: 1935,
+    port: 443,
     chunk_size: 60000,
     gop_cache: true,
     ping: 30,
