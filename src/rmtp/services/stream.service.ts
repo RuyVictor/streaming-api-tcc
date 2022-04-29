@@ -56,31 +56,9 @@ export class StreamService {
     });
 
     this.nodeMediaServer.on("prePlay", async (id, StreamPath, args) => {
-      const streamRepository = AppDataSource.getRepository(Stream);
-
-      const streamId = StreamPath.split("/").pop();
-
-      const foundStream = await streamRepository.findOneBy({
-        id: streamId,
-      });
-
-      await streamRepository.update(foundStream.id, {
-        spectators: foundStream.spectators + 1,
-      });
     });
 
     this.nodeMediaServer.on("donePlay", async (id, StreamPath, args) => {
-      const streamRepository = AppDataSource.getRepository(Stream);
-
-      const streamId = StreamPath.split("/").pop();
-
-      const foundStream = await streamRepository.findOneBy({
-        id: streamId,
-      });
-
-      await streamRepository.update(foundStream.id, {
-        spectators: foundStream.spectators - 1,
-      });
     });
   }
 }
