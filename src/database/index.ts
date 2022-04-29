@@ -14,7 +14,6 @@ export const AppDataSource = new DataSource({
     database: isProduction ? process.env.DATABASE_NAME : "test",
     synchronize: true,
     logging: false,
-    migrationsRun: true,
     entities: [baseDir + "/models/**/*.{ts,js}"],
     migrations: [baseDir + "/migration/**/*.{ts,js}"],
     subscribers: [],
