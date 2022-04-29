@@ -39,7 +39,9 @@ console.log(`Socket initialized!`);
 
 // Database
 AppDataSource.initialize()
-.then(() => {
+.then(async () => {
+  await AppDataSource.synchronize()
+  await AppDataSource.runMigrations()
 console.log(`Database connected!`);
 })
 .catch((err) => {
