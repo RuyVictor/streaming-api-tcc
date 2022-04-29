@@ -40,8 +40,8 @@ console.log(`Socket initialized!`);
 // Database
 AppDataSource.initialize()
 .then(async () => {
-  // await AppDataSource.runMigrations()
-console.log(`Database connected!`);
+  await AppDataSource.runMigrations()
+  console.log(`Database connected!`);
 })
 .catch((err) => {
 console.log(err);
