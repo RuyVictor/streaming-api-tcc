@@ -4,6 +4,7 @@
    "main": "server.js",
    "license": "MIT",
    "type": "commonjs",
+   "proxy": "http://localhost:3000",
    "scripts": {
       "start": "cross-env NODE_ENV=production node build/server.js",
       "dev": "cross-env NODE_ENV=dev tsnd --transpile-only --ignore-watch node_modules src/server.ts",
