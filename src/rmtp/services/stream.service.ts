@@ -35,7 +35,7 @@ export class StreamService {
         await streamRepository.update(streamId, {
           status: StreamStatus.ACTIVE,
           spectators: 0,
-          url: `http://localhost:8000/live/${streamId}/index.m3u8`,
+          url: `http://${process.env.HOST_IP}:8000/live/${streamId}/index.m3u8`,
         });
       }
     );

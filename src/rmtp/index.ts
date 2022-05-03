@@ -13,7 +13,7 @@ const config = {
   http: {
     port: 8000,
     allow_origin: "*",
-    mediaroot: "./media",
+    mediaroot: "/tmp",
   },
   trans: {
     ffmpeg: ffmpeg.path,
