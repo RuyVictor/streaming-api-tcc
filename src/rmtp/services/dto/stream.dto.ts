@@ -1,3 +1,3 @@
-interface iPrePublishAuthDTO {
-    secret: string;
+export interface iPrePublishAuthDTO {
+  secret: string;
 }

@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from "express";
-import { IEditStreamDTO, IStreamSearchDTO } from "../models/dto/stream.dto";
-import { StreamService } from "../services/stream.service";
+import { NextFunction, Request, Response } from 'express';
+import { IEditStreamDTO, IStreamSearchDTO } from '../models/dto/stream.dto';
+import { StreamService } from '../services/stream.service';
 
 export class StreamController {
   static async getStreams(req: Request, res: Response, next: NextFunction) {
@@ -15,7 +15,7 @@ export class StreamController {
         page,
         take,
       });
-      return res.status(200).json({ data: result, total: total });
+      return res.status(200).json({ data: result, total });
     } catch (err) {
       next(err);
     }
@@ -32,14 +32,13 @@ export class StreamController {
   }
 
   static async editStream(req: Request, res: Response, next: NextFunction) {
-
     const { title, description, category, userId } = req.body as IEditStreamDTO;
     try {
       const stream = await StreamService.editStream({
         title,
         description,
         category,
-        userId
+        userId,
       });
       return res.status(200).send(stream);
     } catch (err) {
@@ -47,12 +46,17 @@ export class StreamController {
     }
   }
 
-  static async getTransmissionKey(req: Request, res: Response, next: NextFunction) {
-
+  static async getTransmissionKey(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) {
     const { userId } = req.body;
     try {
-      const transmission_key = await StreamService.getTransmissionKey(userId as string);
-      return res.status(200).json({transmission_key});
+      const transmission_key = await StreamService.getTransmissionKey(
+        userId as string
+      );
+      return res.status(200).json({ transmission_key });
     } catch (err) {
       next(err);
     }

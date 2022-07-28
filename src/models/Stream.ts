@@ -7,18 +7,18 @@ import {
   OneToOne,
   JoinColumn,
   ManyToOne,
-} from "typeorm";
-import { Category } from "./Category";
-import { User } from "./User";
+} from 'typeorm';
+import { Category } from './Category';
+import { User } from './User';
 
 export enum StreamStatus {
-  ACTIVE = "active",
-  INACTIVE = "inactive",
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
 }
 
-@Entity("streams")
+@Entity('streams')
 export class Stream {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ nullable: true })
@@ -30,7 +30,7 @@ export class Stream {
   @Column({ nullable: true })
   description: string;
 
-  @Column({ type: "enum", enum: StreamStatus, default: StreamStatus.INACTIVE })
+  @Column({ type: 'enum', enum: StreamStatus, default: StreamStatus.INACTIVE })
   status: StreamStatus;
 
   @Column({ default: 0 })

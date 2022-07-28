@@ -12,11 +12,11 @@ routes.use('/category', CategoryRoutes);
 routes.use('/auth', AuthRoutes);
 
 routes.get('/teste', ensureAuthenticated, (request, response) =>
-	response.json({ name: 'Streaming API', version: '1.0.0' }),
+  response.json({ name: 'Streaming API', version: '1.0.0' })
 );
 
 routes.get('/', (request, response) =>
-	response.json({ name: 'Streaming API', version: '1.0.0' }),
+  response.json({ name: 'Streaming API', version: '1.0.0' })
 );
 
 export default routes;

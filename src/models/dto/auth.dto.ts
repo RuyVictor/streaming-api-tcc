@@ -1,15 +1,15 @@
 export interface ISignInDTO {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
 }
 
 export interface ISignUpDTO {
-    name: string;
-    email: string;
-    password: string;
+  name: string;
+  email: string;
+  password: string;
 }
 
 export interface IRefreshTokenDTO {
-    accessToken: string
-    refreshToken: string;
+  accessToken: string;
+  refreshToken: string;
 }

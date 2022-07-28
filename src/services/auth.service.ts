@@ -1,17 +1,17 @@
-import { AppDataSource } from "../database";
-import { User } from "../models/User";
+import { AppDataSource } from '../database';
+import { User } from '../models/User';
 
-import { compare, hash } from "bcryptjs";
-import { decode, JwtPayload, sign, verify } from "jsonwebtoken";
+import { compare, hash } from 'bcryptjs';
+import { decode, JwtPayload, sign, verify } from 'jsonwebtoken';
 import {
   IRefreshTokenDTO,
   ISignInDTO,
   ISignUpDTO,
-} from "../models/dto/auth.dto";
-import AppError from "../errors/AppError";
+} from '../models/dto/auth.dto';
+import AppError from '../errors/AppError';
 
-import { StreamService } from "../services/stream.service";
-import { Token } from "../models/Token";
+import { StreamService } from '../services/stream.service';
+import { Token } from '../models/Token';
 
 function generateTokens(user_id: string) {
   const accessToken = sign({}, process.env.JWT_SECRET, {
@@ -32,19 +32,19 @@ export class AuthService {
     const userRepository = AppDataSource.getRepository(User);
 
     const user = await userRepository
-      .createQueryBuilder("user")
-      .where("user.email = :email", { email: email })
-      .addSelect("user.password")
+      .createQueryBuilder('user')
+      .where('user.email = :email', { email })
+      .addSelect('user.password')
       .getOne();
 
     if (!user) {
-      throw new AppError("User not Found", 404);
+      throw new AppError('User not Found', 404);
     }
 
     const passwordMathed = await compare(password, user.password);
 
     if (!passwordMathed) {
-      throw new AppError("Incorrect email/password combination.", 403);
+      throw new AppError('Incorrect email/password combination.', 403);
     }
 
     const { accessToken, refreshToken } = generateTokens(user.id);
@@ -56,7 +56,7 @@ export class AuthService {
       user,
       accessToken,
       refreshToken,
-      refreshTokenExp: refreshTokenExp.exp
+      refreshTokenExp: refreshTokenExp.exp,
     };
   }
 
@@ -64,11 +64,11 @@ export class AuthService {
     const userRepository = AppDataSource.getRepository(User);
 
     const checkUserEmailExists = await userRepository.findOneBy({
-      email: email,
+      email,
     });
 
     if (checkUserEmailExists) {
-      throw new AppError("Email address already used.", 409);
+      throw new AppError('Email address already used.', 409);
     }
 
     const hashedPassword = await hash(password, 8);
@@ -92,14 +92,11 @@ export class AuthService {
       user,
       accessToken,
       refreshToken,
-      refreshTokenExp: refreshTokenExp.exp
+      refreshTokenExp: refreshTokenExp.exp,
     };
   }
 
-  static async refreshToken({
-    accessToken,
-    refreshToken,
-  }: IRefreshTokenDTO) {
+  static async refreshToken({ accessToken, refreshToken }: IRefreshTokenDTO) {
     const userRepository = AppDataSource.getRepository(User);
 
     try {
@@ -107,24 +104,26 @@ export class AuthService {
       const userExists = await userRepository.findOneBy({
         id: sub.toString(),
       });
-  
+
       if (!userExists) {
-        throw new AppError("Invalid refresh token.", 401);
+        throw new AppError('Invalid refresh token.', 401);
       }
 
       const tokenRepository = AppDataSource.getRepository(Token);
-      const refreshTokenIsBlackListed = await tokenRepository.findOneBy({ hash: refreshToken });
+      const refreshTokenIsBlackListed = await tokenRepository.findOneBy({
+        hash: refreshToken,
+      });
       if (refreshTokenIsBlackListed) {
-        throw new AppError("Invalid refresh token", 401);
+        throw new AppError('Invalid refresh token', 401);
       }
 
-      await tokenRepository.save({ hash: accessToken }); //revoke old access token
+      await tokenRepository.save({ hash: accessToken }); // revoke old access token
 
       const { accessToken: newAccessToken } = generateTokens(userExists.id);
 
       return newAccessToken;
     } catch (error) {
-      throw new AppError("Invalid refresh token.", 401);
+      throw new AppError('Invalid refresh token.', 401);
     }
   }
 

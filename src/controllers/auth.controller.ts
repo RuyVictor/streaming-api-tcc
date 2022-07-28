@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, Response } from 'express';
 import {
   IRefreshTokenDTO,
   ISignInDTO,
   ISignUpDTO,
-} from "../models/dto/auth.dto";
-import { AuthService } from "../services/auth.service";
+} from '../models/dto/auth.dto';
+import { AuthService } from '../services/auth.service';
 
 export class AuthController {
   static async signIn(req: Request, res: Response, next: NextFunction) {
@@ -63,7 +63,7 @@ export class AuthController {
         accessToken,
         refreshToken,
       });
-      return res.status(200).json({ message: "Tokens revoked!" });
+      return res.status(200).json({ message: 'Tokens revoked!' });
     } catch (err) {
       next(err);
     }

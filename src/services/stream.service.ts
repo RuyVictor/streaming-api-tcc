@@ -1,11 +1,11 @@
-import { Brackets, UpdateResult } from "typeorm";
-import { AppDataSource } from "../database";
-import AppError from "../errors/AppError";
-import { Category } from "../models/Category";
-import { IEditStreamDTO, IStreamSearchDTO } from "../models/dto/stream.dto";
-import { Stream } from "../models/Stream";
-import { User } from "../models/User";
-import { generateTransmissionKey } from "../utils/generateTransmissionKey";
+import { Brackets } from 'typeorm';
+import { AppDataSource } from '../database';
+import AppError from '../errors/AppError';
+import { Category } from '../models/Category';
+import { IEditStreamDTO, IStreamSearchDTO } from '../models/dto/stream.dto';
+import { Stream } from '../models/Stream';
+import { User } from '../models/User';
+import { generateTransmissionKey } from '../utils/generateTransmissionKey';
 
 export class StreamService {
   static async createRelationWithUser(savedUser: User) {
@@ -21,7 +21,7 @@ export class StreamService {
 
   static async getStreams({
     query,
-    status = "active",
+    status = 'active',
     category,
     page = 1,
     take = 20,
@@ -29,25 +29,25 @@ export class StreamService {
     const streamRepository = AppDataSource.getRepository(Stream);
 
     const [result, total] = await streamRepository
-      .createQueryBuilder("streams")
-      .leftJoinAndSelect("streams.category", "category")
-      .leftJoinAndSelect("streams.user", "user")
-      .where("streams.status = :status", { status })
+      .createQueryBuilder('streams')
+      .leftJoinAndSelect('streams.category', 'category')
+      .leftJoinAndSelect('streams.user', 'user')
+      .where('streams.status = :status', { status })
       .andWhere(
         new Brackets((qb) => {
           query &&
-            qb.where("streams.title LIKE :query", { query: `%${query}%` });
-          query && qb.orWhere("user.name LIKE :query", { query: `%${query}%` });
-          category && qb.andWhere("category.name = :name", { name: category });
+            qb.where('streams.title LIKE :query', { query: `%${query}%` });
+          query && qb.orWhere('user.name LIKE :query', { query: `%${query}%` });
+          category && qb.andWhere('category.name = :name', { name: category });
         })
       )
-      .orderBy("streams.spectators", "DESC")
+      .orderBy('streams.spectators', 'DESC')
       .skip((page - 1) * take)
       .take(take)
       .getManyAndCount();
 
     if (!result) {
-      throw new AppError("Stream not found.", 404);
+      throw new AppError('Stream not found.', 404);
     }
 
     return [result, total];
@@ -57,16 +57,16 @@ export class StreamService {
     const streamRepository = AppDataSource.getRepository(Stream);
 
     if (!stream_host) {
-      throw new AppError("Stream host not found.", 404);
+      throw new AppError('Stream host not found.', 404);
     }
 
     const foundStream = await streamRepository.findOne({
       where: { user: { name: stream_host } },
-      relations: ["category", "user"],
+      relations: ['category', 'user'],
     });
 
     if (!foundStream) {
-      throw new AppError("Stream host not found.", 404);
+      throw new AppError('Stream host not found.', 404);
     }
     return foundStream;
   }
@@ -82,11 +82,11 @@ export class StreamService {
 
     const foundStream = await streamRepository.findOne({
       where: { user: { id: userId } },
-      relations: ['category']
+      relations: ['category'],
     });
 
     if (!foundStream) {
-      throw new AppError("Stream not found.", 404);
+      throw new AppError('Stream not found.', 404);
     }
 
     await streamRepository.update(foundStream.id, {
@@ -100,15 +100,18 @@ export class StreamService {
       });
 
       if (!foundCategory) {
-        throw new AppError("Category not found.", 404);
+        throw new AppError('Category not found.', 404);
       }
 
       await streamRepository.update(foundStream.id, {
-        category: foundCategory
+        category: foundCategory,
       });
     }
 
-    const stream = await streamRepository.findOne({where: { id: foundStream.id }, relations: ['category']});
+    const stream = await streamRepository.findOne({
+      where: { id: foundStream.id },
+      relations: ['category'],
+    });
 
     return stream;
   }
@@ -118,10 +121,11 @@ export class StreamService {
 
     const foundStream = await streamRepository.findOne({
       where: { user: { id: userId } },
-      select: ["id", "transmission_key"]
+      select: ['id', 'transmission_key'],
     });
 
-    const formatedKey = foundStream.id + "?secret=" + foundStream.transmission_key;
+    const formatedKey =
+      foundStream.id + '?secret=' + foundStream.transmission_key;
 
     return formatedKey;
   }

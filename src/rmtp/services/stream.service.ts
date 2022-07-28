@@ -1,6 +1,7 @@
-import NodeMediaServer from "node-media-server";
-import { AppDataSource } from "../../database";
-import { Stream, StreamStatus } from "../../models/Stream";
+import NodeMediaServer from 'node-media-server';
+import { AppDataSource } from '../../database';
+import { Stream, StreamStatus } from '../../models/Stream';
+import { iPrePublishAuthDTO } from './dto/stream.dto';
 
 export class StreamService {
   private nodeMediaServer: NodeMediaServer;
@@ -11,16 +12,16 @@ export class StreamService {
 
   run() {
     this.nodeMediaServer.on(
-      "prePublish",
+      'prePublish',
       async (id, StreamPath, { secret }: iPrePublishAuthDTO) => {
         const streamRepository = AppDataSource.getRepository(Stream);
 
-        const streamId = StreamPath.split("/").pop();
+        const streamId = StreamPath.split('/').pop();
 
         const foundStream = await streamRepository.findOne({
           where: { id: streamId },
-          relations: ["category"],
-          select: ["id", "transmission_key", "title"],
+          relations: ['category'],
+          select: ['id', 'transmission_key', 'title'],
         });
 
         if (
@@ -40,10 +41,10 @@ export class StreamService {
       }
     );
 
-    this.nodeMediaServer.on("donePublish", async (id, StreamPath, args) => {
+    this.nodeMediaServer.on('donePublish', async (id, StreamPath) => {
       const streamRepository = AppDataSource.getRepository(Stream);
 
-      const streamId = StreamPath.split("/").pop();
+      const streamId = StreamPath.split('/').pop();
 
       const foundStream = await streamRepository.findOneBy({
         id: streamId,
@@ -55,10 +56,8 @@ export class StreamService {
       });
     });
 
-    this.nodeMediaServer.on("prePlay", async (id, StreamPath, args) => {
-    });
+    /* this.nodeMediaServer.on("prePlay", async (id, StreamPath, args) => {});
 
-    this.nodeMediaServer.on("donePlay", async (id, StreamPath, args) => {
-    });
+    this.nodeMediaServer.on("donePlay", async (id, StreamPath, args) => {}); */
   }
 }

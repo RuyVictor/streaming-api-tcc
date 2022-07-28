@@ -1,8 +1,8 @@
-import { AppDataSource } from "../database";
-import AppError from "../errors/AppError";
-import { Category } from "../models/Category";
-import { ICategorySearchDTO } from "../models/dto/category.dto";
-import { Not } from "typeorm";
+import { AppDataSource } from '../database';
+import AppError from '../errors/AppError';
+import { Category } from '../models/Category';
+import { ICategorySearchDTO } from '../models/dto/category.dto';
+import { Not } from 'typeorm';
 
 export class CategoryService {
   static async getCategories({
@@ -16,33 +16,31 @@ export class CategoryService {
       const category = await categoryRepository.findOneBy({ name });
 
       if (!category) {
-        throw new AppError("Category not found.", 404);
+        throw new AppError('Category not found.', 404);
       }
 
       // Show categories with total of streams
       const result = await categoryRepository
-        .createQueryBuilder(
-          "category",
-        )
-        .leftJoin("category.streams", "stream", "stream.status = :status", {
-          status: "active",
+        .createQueryBuilder('category')
+        .leftJoin('category.streams', 'stream', 'stream.status = :status', {
+          status: 'active',
         })
         // Sobrescreve o alias padrão do getRawMany()
         .select([
-          "DISTINCT (category.id) AS id",
-          "category.name AS name",
-          "category.image AS image",
+          'DISTINCT (category.id) AS id',
+          'category.name AS name',
+          'category.image AS image',
         ])
-        .addSelect("COUNT(stream.id)", "number_of_streams")
+        .addSelect('COUNT(stream.id)', 'number_of_streams')
         /* .loadRelationCountAndMap(
           "category.number_of_streams",
           "category.streams",
           "stream",
           (qb) => qb.where("stream.status = :status", { status: "active" })
         ) */
-        .andWhere("category.parentId = :id", { id: category.id })
-        .groupBy("category.id")
-        .orderBy("COUNT(stream.id)", "DESC")
+        .andWhere('category.parentId = :id', { id: category.id })
+        .groupBy('category.id')
+        .orderBy('COUNT(stream.id)', 'DESC')
         .offset((page - 1) * take)
         .limit(take)
         // getMany() apenas mostra propriedades existentes na tabela
@@ -50,16 +48,14 @@ export class CategoryService {
         .getRawMany();
 
       const count = await categoryRepository
-        .createQueryBuilder(
-          "category",
-        )
+        .createQueryBuilder('category')
         .loadRelationCountAndMap(
-          "category.number_of_streams",
-          "category.streams",
-          "stream",
-          (qb) => qb.where("stream.status = :status", { status: "active" })
+          'category.number_of_streams',
+          'category.streams',
+          'stream',
+          (qb) => qb.where('stream.status = :status', { status: 'active' })
         )
-        .andWhere("category.parentId = :id", { id: category.id })
+        .andWhere('category.parentId = :id', { id: category.id })
         .getCount();
 
       return [result, count];
@@ -67,27 +63,41 @@ export class CategoryService {
 
     // Obtendo as categorias mães, caso uma categoria contenha sub categorias é marcada como "have_subcategories"
     const primaryCategories = await categoryRepository
-      .createQueryBuilder(
-        "category",
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.children', 'children')
+      .leftJoin(
+        'category.streams',
+        'root_streams',
+        'root_streams.status = :status',
+        {
+          status: 'active',
+        }
       )
-      .leftJoinAndSelect("category.children", "children")
-      .leftJoin("category.streams", "root_streams", "root_streams.status = :status", {
-        status: "active",
-      })
-      .leftJoin("children.streams", "subcategories_streams", "subcategories_streams.status = :status", {
-        status: "active",
-      })
+      .leftJoin(
+        'children.streams',
+        'subcategories_streams',
+        'subcategories_streams.status = :status',
+        {
+          status: 'active',
+        }
+      )
       .select([
-        "DISTINCT (category.id) AS id",
-        "category.name AS name",
-        "category.image AS image",
+        'DISTINCT (category.id) AS id',
+        'category.name AS name',
+        'category.image AS image',
       ])
-      .addSelect("IF(COUNT(children.id) > 0, 'true', 'false')", "have_subcategories")
-      .addSelect("COUNT(root_streams.id) + COUNT(subcategories_streams.id)", "number_of_streams")
-      .andWhere("category.parentId IS NULL")
-      .groupBy("category.id")
-      .getRawMany()
-      
+      .addSelect(
+        "IF(COUNT(children.id) > 0, 'true', 'false')",
+        'have_subcategories'
+      )
+      .addSelect(
+        'COUNT(root_streams.id) + COUNT(subcategories_streams.id)',
+        'number_of_streams'
+      )
+      .andWhere('category.parentId IS NULL')
+      .groupBy('category.id')
+      .getRawMany();
+
     return [primaryCategories, null];
   }
 
@@ -97,25 +107,25 @@ export class CategoryService {
     const category = await categoryRepository.findOneBy({ name });
 
     if (!category) {
-      throw new AppError("Category not found.", 404);
+      throw new AppError('Category not found.', 404);
     }
 
     return await categoryRepository
-      .createQueryBuilder("category")
+      .createQueryBuilder('category')
       .loadRelationCountAndMap(
-        "category.number_of_streams",
-        "category.streams",
-        "stream",
-        (qb) => qb.where("stream.status = :status", { status: "active" })
+        'category.number_of_streams',
+        'category.streams',
+        'stream',
+        (qb) => qb.where('stream.status = :status', { status: 'active' })
       )
-      .andWhere("category.name = :name", { name: category.name })
+      .andWhere('category.name = :name', { name: category.name })
       .getOne();
   }
 
   static async getSelectableCategories() {
     const categoryRepository = AppDataSource.getRepository(Category);
     return await categoryRepository.findAndCount({
-      where: { name: Not("Jogos") },
+      where: { name: Not('Jogos') },
     });
   }
 }

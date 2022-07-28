@@ -3,11 +3,11 @@ import {
   PrimaryGeneratedColumn,
   Column,
   CreateDateColumn,
-} from "typeorm";
+} from 'typeorm';
 
-@Entity("token_blacklist")
+@Entity('token_blacklist')
 export class Token {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ default: null })

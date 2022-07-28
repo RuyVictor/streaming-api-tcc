@@ -1,5 +1,5 @@
-import { ChatRoutes } from "./routes/chat.routes";
-import { Server, Socket } from "socket.io";
+import { ChatRoutes } from './routes/chat.routes';
+import { Server, Socket } from 'socket.io';
 
 export class SocketInstance {
   io: Server;
@@ -9,10 +9,10 @@ export class SocketInstance {
   }
 
   initialize() {
-    this.io.on("connection", (socket: Socket) => {
+    this.io.on('connection', (socket: Socket) => {
       console.log(`Socket: Client ${socket.id} connected!`);
 
-      socket.on("disconnect", () => {
+      socket.on('disconnect', () => {
         console.log(`Socket: Client ${socket.id} disconnected!`);
       });
 

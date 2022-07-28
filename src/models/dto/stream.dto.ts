@@ -1,14 +1,14 @@
-import { IPagination } from "../../common/interfaces/Pagination";
+import { IPagination } from '../../common/interfaces/Pagination';
 
 export interface IStreamSearchDTO extends IPagination {
-    query?: string;
-    status?: string;
-    category?: string;
+  query?: string;
+  status?: string;
+  category?: string;
 }
 
 export interface IEditStreamDTO {
-    title?: string;
-    description?: string;
-    category?: string;
-    userId: string;
+  title?: string;
+  description?: string;
+  category?: string;
+  userId: string;
 }

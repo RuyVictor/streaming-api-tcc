@@ -5,12 +5,12 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToOne,
-} from "typeorm";
-import { Stream } from "./Stream";
+} from 'typeorm';
+import { Stream } from './Stream';
 
-@Entity("users")
+@Entity('users')
 export class User {
-  @PrimaryGeneratedColumn("uuid")
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ unique: true })
