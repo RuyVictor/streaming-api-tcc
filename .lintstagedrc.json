@@ -1,0 +1,3 @@
+{
+  "*.ts": ["yarn prettier:write", "yarn lint:fix", "yarn test"]
+}

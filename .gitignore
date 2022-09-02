@@ -1,6 +1,5 @@
-.idea/
 node_modules/
 build/
 tmp/
 temp/
-media/
+coverage/

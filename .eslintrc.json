@@ -20,7 +20,7 @@
     "camelcase": "off",
     "no-use-before-define": "off",
     "no-unused-vars": "off",
-    "@typescript-eslint/no-unused-vars": ["error"],
-    "quotes": [2, "single", "avoid-escape"]
+    "no-useless-constructor": "off",
+    "@typescript-eslint/no-unused-vars": ["error"]
   }
 }
