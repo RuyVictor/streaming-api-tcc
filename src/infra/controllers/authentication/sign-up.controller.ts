@@ -4,6 +4,7 @@ import {
   SignUpOutputDTO,
 } from '@/application/authentication/dtos/sign-up.dto';
 import { SignUpUseCase } from '@/application/authentication/sign-up.use-case';
+import { SignUpJoiSchema } from './validations/sign-up.validation';
 import { Request, Response, NextFunction } from 'express';
 
 export class SignUpController {
@@ -12,11 +13,12 @@ export class SignUpController {
     res: Response,
     next: NextFunction
   ): Promise<Response<SignUpOutputDTO>> {
-    const { name, email, password } = req.body as SignUpDTO;
-
-    const usecase = container.resolve(SignUpUseCase);
-
     try {
+      await SignUpJoiSchema.validate(req.body);
+      const { name, email, password } = req.body as SignUpDTO;
+
+      const usecase = container.resolve(SignUpUseCase);
+
       const { user, accessToken, refreshToken, refreshTokenExp } =
         await usecase.execute({
           name,

@@ -4,6 +4,7 @@ import {
   GetSubcategoriesOutputDTO,
 } from '@/application/category/dtos/get-subcategories.dto';
 import { GetSubcategoriesUseCase } from '@/application/category/get-subcategories.use-case';
+import { GetSubcategoriesJoiSchema } from './validations/get-subcategories.validation';
 import { Request, Response, NextFunction } from 'express';
 
 export class GetSubcategoriesController {
@@ -12,11 +13,12 @@ export class GetSubcategoriesController {
     res: Response,
     next: NextFunction
   ): Promise<Response<GetSubcategoriesOutputDTO>> {
-    const { name, page, take } = req.query as unknown as GetSubcategoriesDTO;
-
-    const usecase = container.resolve(GetSubcategoriesUseCase);
-
     try {
+      await GetSubcategoriesJoiSchema.validate(req.query);
+      const { name, page, take } = req.query as unknown as GetSubcategoriesDTO;
+
+      const usecase = container.resolve(GetSubcategoriesUseCase);
+
       const { data, total } = await usecase.execute({
         name,
         page,

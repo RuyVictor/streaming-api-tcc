@@ -4,6 +4,7 @@ import {
   SearchStreamsOutputDTO,
 } from '@/application/stream/dtos/search-streams.dto';
 import { GetStreamsUseCase } from '@/application/stream/search-streams.use-case';
+import { SearchStreamsJoiSchema } from './validations/search-streams.validation';
 import { Request, Response, NextFunction } from 'express';
 
 export class SearchStreamsController {
@@ -12,12 +13,13 @@ export class SearchStreamsController {
     res: Response,
     next: NextFunction
   ): Promise<Response<SearchStreamsOutputDTO>> {
-    const { query, status, category, page, take } =
-      req.query as unknown as SearchStreamsDTO;
-
-    const usecase = container.resolve(GetStreamsUseCase);
-
     try {
+      await SearchStreamsJoiSchema.validate(req.query);
+      const { query, status, category, page, take } =
+        req.query as unknown as SearchStreamsDTO;
+
+      const usecase = container.resolve(GetStreamsUseCase);
+
       const { data, total } = await usecase.execute({
         query,
         status,
