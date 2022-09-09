@@ -14,11 +14,17 @@ export class EditStreamRepositoryTypeORM
     title,
     description,
     category,
+    url,
+    status,
+    spectators,
   }: EditStreamDatabaseDTO): Promise<Stream> {
     await this.streamRepository.update(streamId, {
-      title,
-      description,
-      category,
+      ...(title && { title }),
+      ...(description && { description }),
+      ...(category && { category }),
+      ...(url && { url }),
+      ...(status && { status }),
+      ...(spectators && { spectators }),
     });
 
     return await this.streamRepository.findOneBy({ id: streamId });

@@ -4,11 +4,11 @@ import Joi from 'joi';
 export class SearchStreamsJoiSchema {
   static validate(input: any) {
     const schema = Joi.object<SearchStreamsDTO>({
-      query: Joi.string(),
-      status: Joi.string(),
-      category: Joi.string(),
-      page: Joi.number(),
-      take: Joi.number(),
+      query: Joi.string().empty(''),
+      status: Joi.string().empty(''),
+      category: Joi.string().empty(''),
+      page: Joi.number().allow(null),
+      take: Joi.number().allow(null),
     });
 
     return schema.validateAsync(input);

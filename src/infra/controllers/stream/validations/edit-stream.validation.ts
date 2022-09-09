@@ -7,9 +7,9 @@ export class EditStreamJoiSchema {
     const schema = Joi.object<EditStreamRequestDTO & RefreshTokenDTO>({
       categoryId: Joi.string().uuid().required(),
       userId: Joi.string().uuid().required(),
-      description: Joi.string(),
-      title: Joi.string(),
-      accessToken: Joi.string(),
+      description: Joi.string().empty('').allow(null),
+      title: Joi.string().required(),
+      accessToken: Joi.string().required(),
     });
 
     return schema.validateAsync(input);

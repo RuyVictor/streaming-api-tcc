@@ -1,3 +1,5 @@
+import { StreamStatus } from '@/domain/stream.entity';
+
 export interface EditStreamRequestDTO {
   userId: string;
   title?: string;
@@ -8,7 +10,7 @@ export interface EditStreamRequestDTO {
 export interface EditStreamDatabaseDTO {
   streamId: string;
   title?: string;
-  status?: string;
+  status?: StreamStatus;
   url?: string;
   spectators?: number;
   description?: string;

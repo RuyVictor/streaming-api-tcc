@@ -6,7 +6,7 @@ export class GetTransmissionKeyJoiSchema {
   static validate(input: any) {
     const schema = Joi.object<GetTransmissionKeyDTO & RefreshTokenDTO>({
       userId: Joi.string().uuid().required(),
-      accessToken: Joi.string(),
+      accessToken: Joi.string().required(),
     });
 
     return schema.validateAsync(input);
